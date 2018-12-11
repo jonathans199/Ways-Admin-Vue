@@ -20,3 +20,8 @@ export function userStore(){
 export function setUser(val){
   return localStorage.setItem("user", JSON.stringify(val))
 }
+
+export function validateDelete() {
+  const answer = window.confirm('Do you really want to destroy?')
+  if (answer) return true
+}

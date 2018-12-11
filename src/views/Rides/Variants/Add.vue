@@ -45,6 +45,7 @@
       </button>
       <button type="button" class="btn btn-primary" data-dismiss="modal" @click="hideModal()">Ok</button>
     </div>
+    
   </b-modal>
 </template>
 

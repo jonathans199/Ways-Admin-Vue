@@ -101,7 +101,6 @@ export default {
       action = async() => {
         await localStorage.setItem('auth_token', data.auth_token)
         await localStorage.setItem('user', JSON.stringify(data.user))
-        await localStorage.setItem('store', JSON.stringify(data.user.store))
         await router.push("dashboard?auth=true")
       }
       
