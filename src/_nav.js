@@ -18,7 +18,7 @@ export default {
       icon: 'icon-energy'
     },
     {
-      name: 'Points',
+      name: 'Managment',
       url: '/points/list',
       icon: 'icon-plane'
     },

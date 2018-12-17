@@ -17,7 +17,6 @@
             </b-input-group>
           </b-form-group>
 
-
           <b-form-group label="Notes"  label-for="elementsPrependAppend"  >
             <b-input-group>
               <b-form-textarea
@@ -37,7 +36,7 @@
               >
               <b-form-checkbox-group stacked>
                 <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="customChk1"   v-model="form.publish" >
+                  <input type="checkbox" class="custom-control-input" id="customChk1"   v-model="form.app_display" >
                   <label class="custom-control-label" for="customChk1">App Only</label>
                 </div>
               </b-form-checkbox-group>
@@ -109,7 +108,7 @@ export default {
       loading: false,
       form: {
         images:[],
-        publish: true
+        app_display: false
       }
     }
   },

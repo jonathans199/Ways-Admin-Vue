@@ -1,9 +1,52 @@
 <template>
   <div>
     <top-nav :activeList="true"/>
-    <b-card no-body style="border-top: none;" class="col-12">
-      <br>
+    <b-card no-body style="border-top: none;" class="col-12" >
+      <div v-if="loading" class="text-center mt-5 mb-5">
+        <i class="fa fa-circle-o-notch fa-spin fa-fw view__loader fa-lg" ></i>
+        <br>
+        loading
+      </div>
+      
+      <b-row class="mt-3" v-if="!loading">
+        <b-col md="6" class="my-1">
+          <b-form-group horizontal label="Filter" class="mb-0">
+            <b-input-group>
+              <b-form-input v-model="filter" placeholder="Type to Search" />
+              <b-input-group-append>
+                <b-btn :disabled="!filter" @click="filter = ''">Clear</b-btn>
+              </b-input-group-append>
+            </b-input-group>
+          </b-form-group>
+        </b-col>
+
+        <b-col md="6" class="my-1">
+          <b-form-group horizontal label="Per page" class="mb-0">
+            <b-form-select :options="pageOptions" v-model="perPage" />
+          </b-form-group>
+        </b-col>
+        
+        <b-col md="12" sm="12" class="my-2">
+          <b-form-group horizontal label="Sort" class="mb-0">
+            <b-input-group>
+
+              <b-form-select v-model="sortBy" :options="sortOptions">
+                <option slot="first" :value="null">-- none --</option>
+              </b-form-select>
+
+              <b-form-select :disabled="!sortBy" v-model="sortDesc" slot="append">
+                <option :value="false">Asc</option>
+                <option :value="true">Desc</option>
+              </b-form-select>
+
+            </b-input-group>
+          </b-form-group>
+        </b-col>  
+
+      </b-row>
+
       <b-table 
+        v-if="!loading"
         :hover="hover" 
         :striped="striped" 
         :bordered="bordered" 
@@ -14,6 +57,12 @@
         :fields="fields" 
         :current-page="currentPage" 
         :per-page="perPage"
+        :filter="filter"
+        :sort-by.sync="sortBy"
+        :sort-desc.sync="sortDesc"
+        :sort-direction="sortDirection"
+        @filtered="onFiltered"
+        class="mt-3"
       >
         <template slot="id" slot-scope="data">
           <div class="custom-control custom-checkbox ">
@@ -22,22 +71,24 @@
           </div>
         </template>
 
-        <template slot="Info" slot-scope="data">
-          <p><strong>Total:</strong> ${{data.item.total}}</p>
-          <p><strong>No Passengers:</strong> {{data.item.passenger_qty}}</p>
+        <template slot="total" slot-scope="data">
+          <p><span class="badge badge-success">${{data.item.total}}</span></p>
         </template>
 
-        <template slot="Details" slot-scope="data">
-          <p><strong>Notes:</strong> {{data.item.notes}}</p>
+        <template slot="name" slot-scope="data">
+          <p>{{data.item.customer.name}}</p>
         </template>
 
-
-        <template slot="action" slot-scope="data">
-          <button tag="button" :to="'/inventory/edit/' + data.item.uuid" class="btn btn-sm btn-primary" disabled>
-            Details   <i class="fa fa-list"/>
-          </button>
+        <template slot="email" slot-scope="data">
+          <p>{{data.item.customer.email}}</p>
         </template>
 
+        <template slot="order_status" slot-scope="data">
+          <p><span v-if="data.item.order_status_id === 12" class="badge badge-success">{{data.item.order_status.name}}</span></p>
+          <p><span v-if="data.item.order_status_id === 11" class="badge badge-warning">{{data.item.order_status.name}}</span></p>
+          <p><span v-if="data.item.order_status_id === 13" class="badge badge-danger">{{data.item.order_status.name}}</span></p>
+
+        </template>
 
       </b-table>
       <nav >
@@ -104,18 +155,33 @@ export default {
       items: [],
       fields: [
         {key: 'id', sortable: true, label: 'ID', class:'table__column-id'},
-        {key: 'Info', sortable: false},
-        {key: 'Details', label: 'Details' },
-        {key: 'created_at' , label: 'Created At' },
-        {key: 'action', label: 'Action' },
-        
+        {key: 'total', label:'Total', sortable: false},
+        {key: 'name', label: 'Name' },
+        {key: 'email', label: 'Email' },
+        {key: 'notes', label: 'Details' },
+        {key: 'order_status', label:'Status', sortable: true },
+        {key: 'created_at' , label: 'Created At' }
       ],
       currentPage: 1,
       perPage: 30,
       totalRows: 0,
       loaders: {},
       show: true,
-      loading: false
+      loading: false,
+      filter: null,
+      pageOptions: [ 5, 10, 15, 20, 25, 30, 40, 50, 100 ],
+      sortBy: 'order_status',
+      sortDesc: true,
+      sortDirection: 'asc'
+    }
+  },
+
+  computed: {
+    sortOptions () {
+      // Create an options list from our fields
+      return this.fields
+        .filter(f => f.sortable)
+        .map(f => { return { text: f.label, value: f.key } })
     }
   },
 
@@ -203,6 +269,12 @@ export default {
           this.loading = false
         })
       })
+    },
+
+    onFiltered (filteredItems) {
+      // Trigger pagination to update the number of buttons/pages due to filtering
+      this.totalRows = filteredItems.length
+      this.currentPage = 1
     }
   }
 

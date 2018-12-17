@@ -1,9 +1,15 @@
 <template>
-  <b-modal  ok-only size="lg" id="modalVariants"  title="point PickUpTimes">
-    <div v-if="PickUpTimes.length === 0" class="text-center">
-      <h2 >No PickUpTimes Yet</h2>
+  <b-modal  ok-only size="lg" id="modalVariants"  :title="'Times - ' + point.name">
+    <div v-if="PickUpTimes.length === 0 && !loading" class="text-center">
+      <h2 >No Times Yet</h2>
     </div>
-      
+    
+    <div v-if="loading" class="text-center mt-5 mb-5">
+      <i class="fa fa-circle-o-notch fa-spin fa-fw view__loader fa-lg" ></i>
+      <br>
+      loading
+    </div>
+    
     <div v-for="item in PickUpTimes" :key="item.id">
       <div class="row">
         
@@ -21,11 +27,9 @@
         </span>
         
         <span class="col-2">
-          <label for="">Time</label>
+          <label for="">Price</label>
           <input type="text" class="form-control" :value="item.price" name="" id="">
         </span>
-
-        
 
         <span class="col-2">
           <button @click="deleteVariant(item)" class="btn btn-default mt-4 text-danger">DELETE <i class="fa fa-times"></i></button>
@@ -56,12 +60,13 @@
 
     <div slot="modal-footer" >
       <button type="button" class="btn btn-warning mr-1" @click="addVariant()">
-        Add PickUpTime 
+        New Time
         <i class="fa fa-plus" v-if="!this.show"></i>
         <i class="fa fa-minus" v-if="this.show"></i>
       </button>
       <button type="button" class="btn btn-primary" data-dismiss="modal" @click="hideModal()">Ok</button>
     </div>
+
   </b-modal>
 </template>
 
@@ -94,6 +99,7 @@ export default {
   },
 
   methods:{
+
     showModal () {
       this.$root.$emit('bv::show::modal','modalVariants')
     },
@@ -120,14 +126,14 @@ export default {
       })
       .then(response => {
         if (response.status == 201 || response.status == 200) {
-          this.$toasted.show('PickUpTime successfully created' , {
+          this.$toasted.show('Time successfully created' , {
             position:'top-right', 
             duration: 5000,
             type: 'default',
             closeOnSwipe: true
           })
           this.loading = false
-          this.getPickUpTimes({id:this.form.id})
+          this.getPickUpTimes(this.point)
         }
       })
       .catch((error) => {
@@ -146,6 +152,8 @@ export default {
     getPickUpTimes(item){
       this.form.id = item.id
       this.loading = true
+      this.point   = item
+
       axios.get(config.defaultURL + '/api/v1/desk/pick_up_dates?id=' + item.id, {
         headers: {
           "content-type": "application/json",
@@ -155,6 +163,7 @@ export default {
       .then(response => {
         if (response.status == 200) {
           this.PickUpTimes = response.data
+          this.loading = false
         }
       })
       .catch((error) => {
@@ -164,39 +173,43 @@ export default {
       })
     },
     
-    deleteVariant(item){
-      axios({
-        url:config.defaultURL + '/api/v1/desk/pick_up_dates/' + item.uuid,
-        data:this.form,
-        method:'DELETE',
-        headers: {
-          "content-type": "application/json",
-          Authorization: localStorage.getItem("auth_token")
-        }
-      })
-      .then(response => {
-        if (response.status == 200) {
-          this.$toasted.show('PickUpTime successfully destroyed' , {
-            position:'top-right', 
-            duration: 5000,
-            type: 'danger',
-            closeOnSwipe: true
-          })
-          this.loading = false
-          this.getPickUpTimes({id:this.form.id})
-        }
-      })
-      .catch((error) => {
-        error.response.data.map((m) => {
-          this.$toasted.show(m, { 
-            position:'top-right', 
-            duration: 5000,
-            type: 'error',
-            closeOnSwipe: true
-          })
-          this.loading = false
+    deleteVariant(item, next){
+      
+      if (config.validateDelete()) {
+        this.loading = true
+        axios({
+          url:config.defaultURL + '/api/v1/desk/pick_up_dates/' + item.uuid,
+          data:this.form,
+          method:'DELETE',
+          headers: {
+            "content-type": "application/json",
+            Authorization: localStorage.getItem("auth_token")
+          }
         })
-      })
+        .then(response => {
+          if (response.status == 200) {
+            this.$toasted.show('Time successfully destroyed' , {
+              position:'top-right', 
+              duration: 5000,
+              type: 'danger',
+              closeOnSwipe: true
+            })
+            this.loading = false
+            this.getPickUpTimes(this.point)
+          }
+        })
+        .catch((error) => {
+          error.response.data.map((m) => {
+            this.$toasted.show(m, { 
+              position:'top-right', 
+              duration: 5000,
+              type: 'error',
+              closeOnSwipe: true
+            })
+            this.loading = false
+          })
+        })
+      }
     }
   }
 }
