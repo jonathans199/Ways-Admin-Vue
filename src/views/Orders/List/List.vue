@@ -1,8 +1,14 @@
 <template>
   <div>
     <top-nav :activeList="true"/>
-    <b-card no-body style="border-top: none;" class="col-12">
-      <b-row class="mt-3">
+    <b-card no-body style="border-top: none;" class="col-12" >
+      <div v-if="loading" class="text-center mt-5 mb-5">
+        <i class="fa fa-circle-o-notch fa-spin fa-fw view__loader fa-lg" ></i>
+        <br>
+        loading
+      </div>
+      
+      <b-row class="mt-3" v-if="!loading">
         <b-col md="6" class="my-1">
           <b-form-group horizontal label="Filter" class="mb-0">
             <b-input-group>
@@ -40,6 +46,7 @@
       </b-row>
 
       <b-table 
+        v-if="!loading"
         :hover="hover" 
         :striped="striped" 
         :bordered="bordered" 

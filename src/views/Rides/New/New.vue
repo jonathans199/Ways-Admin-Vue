@@ -31,13 +31,20 @@
           <hr>
 
           <b-row>
-            <b-form-group class="col-5" label="Pick Up" label-for="elementsAppend" >
+            <b-form-group v-if="form.pick_up_point.point_type_id != 13" class="col-5" label="Pick Up" label-for="elementsAppend" >
               <b-form-group  class="mb-0">
                 <b-form-select v-model="form.ride.starting_point_id" >
                   <option v-for="item in origins" :value="item.id">{{item.name}}</option>
                 </b-form-select>
               </b-form-group>
             </b-form-group>
+
+            <b-form-group v-if="form.pick_up_point.point_type_id === 13" class="col-5" label="Pick Address" label-for="elementsAppend" >
+              <b-input-group>
+                <b-form-input  type="text" v-model="form.pick_up_point.address"></b-form-input>
+              </b-input-group>
+            </b-form-group>
+
             
             <b-form-group class="col-5" label="Destiny" label-for="elementsAppend" >
               <b-form-group  class="mb-0">
@@ -55,7 +62,19 @@
           </b-row>
 
           <b-row>
-            <b-form-group class="col-10" label="Date and Hour" label-for="elementsAppend" description="12/15/2018">
+            <b-form-group v-if="form.pick_up_point.point_type_id === 13" class="col-5" label="Date" label-for="elementsAppend" description="12/15/2018">
+              <b-input-group>
+                <b-form-input  type="date" v-model="form.pick_up_date.date"></b-form-input>
+              </b-input-group>
+            </b-form-group>
+            
+            <b-form-group v-if="form.pick_up_point.point_type_id === 13" class="col-5" label="Hour" label-for="elementsAppend" description="08:00">
+              <b-input-group>
+                <b-form-input  type="text" v-model="form.pick_up_date.hour"></b-form-input>
+              </b-input-group>
+            </b-form-group>
+
+            <b-form-group v-if="form.pick_up_point.point_type_id != 13" class="col-10" label="Date and Hour" label-for="elementsAppend" description="12/15/2018">
               <b-form-group  class="mb-0">
                 <b-form-select @change="modifiyFormDate" v-model="form.ride.pick_up_date_id" class="is-valid" >
                   <option v-for="item in pick_up_dates_list" :value="item.id" >{{item.date}} - {{item.hour}}</option>
@@ -149,7 +168,8 @@ export default {
         images:[],
         publish: true,
         ride:{},
-        customer:{}
+        customer:{},
+        pick_up_point:{}
       }
     }
   },

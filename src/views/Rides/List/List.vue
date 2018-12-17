@@ -1,9 +1,15 @@
 <template>
   <div>
     <top-nav :activeList="true"/>
-
+    
     <b-card no-body style="border-top: none;" class="col-12">
-      <b-row class="mt-3">
+      <div v-if="loading" class="text-center mt-5 mb-5">
+        <i class="fa fa-circle-o-notch fa-spin fa-fw view__loader fa-lg" ></i>
+        <br>
+        loading
+      </div>
+
+      <b-row class="mt-3" v-if="!loading" >
         <b-col md="6" class="my-1">
           <b-form-group horizontal label="Filter" class="mb-0">
             <b-input-group>
@@ -42,6 +48,7 @@
       </b-row>
 
       <b-table 
+        v-if="!loading"
         :hover="hover" 
         :striped="striped" 
         :bordered="bordered" 
@@ -59,18 +66,18 @@
         :sort-direction="sortDirection"
         class="mt-3"
       >
-        <template slot="id" slot-scope="data" >
-          <div class="custom-control custom-checkbox " >
-            <input type="checkbox" :id="data.item.id" class="custom-control-input" value="1" >
-            <label class="custom-control-label" :for="data.item.id"></label>
-          </div>
-        </template>
-
         
         <template slot="ride_time" slot-scope="data">
           <span class="badge badge-success">{{data.item.ride_time}}</span>
         </template>
 
+        <template slot="point_type_id" slot-scope="data">
+          <div class="custom-control custom-checkbox " >
+            <input type="checkbox" :id="data.item.id" class="custom-control-input" v-model="data.item.is_web" disabled>
+            <label class="custom-control-label" :for="data.item.id"></label>
+          </div>
+        </template>
+        
         <template slot="passenger_qty" slot-scope="data">
           <p>{{data.item.ride.passenger_qty}}</p>
         </template>
@@ -112,6 +119,10 @@
 </template>
 
 <style>
+  .first-id__class{
+    min-width: 15px;
+    vertical-align: middle !important;
+  }
   .product__list-image {
     width: 140px;
     height: 140px;
@@ -137,7 +148,7 @@ export default {
     server: { type: String },
     hover: {
       type: Boolean,
-      default: false
+      default: true
     },
     striped: {
       type: Boolean,
@@ -170,14 +181,13 @@ export default {
     'top-nav': NavTop,
     modalVariants
   },
-  
-  
 
   data(){
     return {
       items: [],
       fields: [
-        {key: 'id', sortable: false, label: 'ID', class:'table__column-id'},
+        {key: 'id', sortable: false, label: 'ID', tdClass:'first-id__class'},
+        {key: 'point_type_id', sortable: false, label: 'Web' },
         {key: 'date', label: 'Date', sortable: true},
         {key: 'ride_time', label: 'Time', sortable: true },
         {key: 'name' , label: 'Name' },
@@ -260,7 +270,7 @@ export default {
       .then(response => {
         if (response.status == 200) {
           this.items = response.data.map((ride,index) => {
-            ride['done'] = ride.ride_status_id === 11 ? (false) : (true)
+            ride['is_web'] = ride.pick_up_point.point_type_id === 13 ? (true) : (false)
             return ride
           })
           this.loading = false

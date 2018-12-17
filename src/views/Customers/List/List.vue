@@ -9,6 +9,12 @@
     <div class="row">
       <nav-left class="col-2"/>
       <div class="col-10">
+        <div v-if="loading" class="text-center mt-5 mb-5">
+          <i class="fa fa-circle-o-notch fa-spin fa-fw view__loader fa-lg" ></i>
+          <br>
+          loading
+        </div>
+
         <b-row class="mt-3" v-if="!loading">
           <b-col md="6" class="my-1">
             <b-form-group horizontal label="Filter" class="mb-0">
@@ -30,6 +36,7 @@
         </b-row>
         
         <b-table 
+          v-if="!loading"
           :hover="hover" 
           :striped="striped" 
           :bordered="bordered" 
@@ -221,6 +228,12 @@ export default {
     
     getRowCount (items) {
       return items.length
+    },
+
+    onFiltered (filteredItems) {
+      // Trigger pagination to update the number of buttons/pages due to filtering
+      this.totalRows = filteredItems.length
+      this.currentPage = 1
     }
   }
 }
