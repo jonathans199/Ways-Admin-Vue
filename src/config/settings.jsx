@@ -1,6 +1,6 @@
 'use strict';
-export let  defaultURL = "http://localhost:3001"
-// export let  defaultURL = "https://api.waysfl.com"
+// export let  defaultURL = "http://localhost:3001"
+export let  defaultURL = "https://api.waysfl.com"
 
 export function logout(){
   localStorage.removeItem("auth_token")
