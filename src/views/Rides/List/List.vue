@@ -1,6 +1,6 @@
 <template>
   <div>
-    <top-nav :activeList="true"/>
+    <top-nav class="print__action" :activeList="true"/>
     
     <b-card no-body style="border-top: none;" class="col-12">
       <div v-if="loading" class="text-center mt-5 mb-5">
@@ -9,7 +9,7 @@
         loading
       </div>
 
-      <b-row class="mt-3" v-if="!loading" >
+      <b-row class="mt-3 print__action" v-if="!loading" >
         <b-col md="6" class="my-1">
           <b-form-group horizontal label="Filter" class="mb-0">
             <b-input-group>
@@ -27,7 +27,7 @@
           </b-form-group>
         </b-col>
 
-        <b-col md="12" sm="12" class="my-2">
+        <b-col md="9" sm="9" class="my-2">
           <b-form-group horizontal label="Sort" class="mb-0">
             <b-input-group>
 
@@ -42,9 +42,12 @@
 
             </b-input-group>
           </b-form-group>
-        </b-col>  
+        </b-col>
 
-        
+        <b-col md="3" sm="3" class="my-2">
+          <button @click="printTable(true,'none')" class="btn btn-secondary btn-block text-black">Print <i class="fa fa-print"></i></button>
+        </b-col>
+
       </b-row>
 
       <b-table 
@@ -110,7 +113,7 @@
         </template>
 
       </b-table>
-      <nav >
+      <nav class="print__action">
         <b-pagination :total-rows="getRowCount(items)" :per-page="perPage" v-model="currentPage" prev-text="Prev" next-text="Next" hide-goto-end-buttons/>
       </nav>
     </b-card>
@@ -123,6 +126,7 @@
     min-width: 15px;
     vertical-align: middle !important;
   }
+  
   .product__list-image {
     width: 140px;
     height: 140px;
@@ -186,8 +190,8 @@ export default {
     return {
       items: [],
       fields: [
-        {key: 'id', sortable: false, label: 'ID', tdClass:'first-id__class'},
-        {key: 'point_type_id', sortable: false, label: 'Web' },
+        {key: 'id', sortable: true, label: 'ID', tdClass:'first-id__class'},
+        {key: 'point_type_id', sortable: false, label: 'Web', thClass: 'print__action', tdClass: 'print__action' },
         {key: 'date', label: 'Date', sortable: true},
         {key: 'ride_time', label: 'Time', sortable: true },
         {key: 'name' , label: 'Name' },
@@ -195,7 +199,7 @@ export default {
         {key: 'destiny_point', label: 'Destination', sortable: true  },
         {key: 'phone', label: 'Phone' },
         {key: 'email', label: 'Email' },
-        {key: 'actions', label: 'Actions' }
+        {key: 'actions', label: 'Actions', thClass: 'print__action', tdClass: 'print__action' }
       ],
       currentPage: 1,
       perPage: 30,
@@ -213,9 +217,21 @@ export default {
 
   created(){
     this.listRides()
+    window.onafterprint = () => {
+      this.printTable(false,'')
+    }
   },
 
   methods: {
+    printTable(print,myClass){
+      var cols =     document.getElementsByClassName('print__action');
+      Array.prototype.forEach.call(cols, function(el) {
+        el.style.display =  myClass;
+      })
+
+      if (print) window.print()
+    },
+    
     deleteRide(item){
       if (config.validateDelete()) {
         this.loading = true
@@ -253,7 +269,6 @@ export default {
         })
       }
     },
-
 
     openVariant(item){
       serverBus.$emit('variantModal', item)
