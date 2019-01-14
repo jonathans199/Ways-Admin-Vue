@@ -16,8 +16,8 @@
         <span class="col-4">
           <label for="">Date</label>
           
-            <b-form-input class="col-12" :value="item.date" type="date" id="date" /> 
-
+            <!-- <b-form-input class="col-12" v-model="item.date" type="date" id="date" />  -->
+            <b-form-input class="col-12" v-model="item.date" type="text" id="date" /> 
           </b-form-group>
         </span>
 
@@ -162,6 +162,7 @@ export default {
       })
       .then(response => {
         if (response.status == 200) {
+          console.log(response.data)
           this.PickUpTimes = response.data
           this.loading = false
         }
